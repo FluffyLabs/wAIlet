@@ -3,7 +3,7 @@
 name = "app"
 version = "0.1.0"
 description = ""
-authors = [ "" ]
+authors = [ "dzkb <1517445+dzkb@users.noreply.github.com>" ]
 readme = "README.md"
 
 [tool.poetry.scripts]
