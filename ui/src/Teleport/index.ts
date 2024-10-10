@@ -1,1 +1,1 @@
-export { Teleport } from "./Teleport"
+export { Teleport } from "./Teleport";

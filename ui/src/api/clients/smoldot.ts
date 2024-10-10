@@ -1,5 +1,5 @@
-import SmWorker from "polkadot-api/smoldot/worker?worker"
-import { startFromWorker } from "polkadot-api/smoldot/from-worker"
+import { startFromWorker } from "polkadot-api/smoldot/from-worker";
+import SmWorker from "polkadot-api/smoldot/worker?worker";
 
 /*
 interface QueueNode<T> {
@@ -64,7 +64,7 @@ export const smoldot = startFromWorker(
     messages.push(`${getTickDate()} (${level})${target}\n${message}\n\n`)
   },
 }*/,
-)
+);
 /*;(window as any).getLogs = () => {
   console.log("touch the window now!")
   setTimeout(() => {

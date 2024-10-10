@@ -1,20 +1,20 @@
-import dot from "./dot"
-import ksm from "./ksm"
-import wnd from "./wnd"
-import roc from "./roc"
-import pas from "./pas"
-import { AssetId, AssetInChain, ChainId } from "./types"
+import dot from "./dot";
+import ksm from "./ksm";
+import pas from "./pas";
+import roc from "./roc";
+import type { AssetId, AssetInChain, ChainId } from "./types";
+import wnd from "./wnd";
 
-const assetsInChains = [...dot, ...ksm, ...wnd, ...roc, ...pas]
+const assetsInChains = [...dot, ...ksm, ...wnd, ...roc, ...pas];
 
-export const chains = new Map<ChainId, Map<AssetId, AssetInChain>>()
+export const chains = new Map<ChainId, Map<AssetId, AssetInChain>>();
 
 assetsInChains.forEach((assetinChain) => {
-  const { chain, symbol } = assetinChain
-  if (!chains.has(chain)) chains.set(chain, new Map())
+  const { chain, symbol } = assetinChain;
+  if (!chains.has(chain)) chains.set(chain, new Map());
 
-  chains.get(chain)!.set(symbol, assetinChain)
-})
+  chains.get(chain)!.set(symbol, assetinChain);
+});
 
 export const ASSET_DECIMALS: Record<AssetId, number> = {
   DOT: 10,
@@ -22,7 +22,7 @@ export const ASSET_DECIMALS: Record<AssetId, number> = {
   WND: 12,
   ROC: 12,
   PAS: 10,
-}
+};
 
 export const CHAIN_NAMES: Record<ChainId, string> = {
   dot: "Polkadot RelayChain",
@@ -35,4 +35,4 @@ export const CHAIN_NAMES: Record<ChainId, string> = {
   rocAh: "Rococo AssetHub",
   pas: "Paseo RelayChain",
   pasAh: "Paseo AssetHub",
-}
+};

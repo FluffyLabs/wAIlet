@@ -1,15 +1,4 @@
 import {
-  InjectedExtension,
-  InjectedPolkadotAccount,
-} from "polkadot-api/pjs-signer"
-import React, {
-  PropsWithChildren,
-  useEffect,
-  useState,
-  useSyncExternalStore,
-} from "react"
-import { useSelectedExtensions } from "./extensionCtx"
-import {
   Select,
   SelectContent,
   SelectGroup,
@@ -17,70 +6,60 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { SelectedAccountCtx } from "./accountCtx"
+} from "@/components/ui/select";
+import type { InjectedExtension, InjectedPolkadotAccount } from "polkadot-api/pjs-signer";
+import type React from "react";
+import { type PropsWithChildren, useEffect, useState, useSyncExternalStore } from "react";
+import { SelectedAccountCtx } from "./accountCtx";
+import { useSelectedExtensions } from "./extensionCtx";
 
-export const Accounts: React.FC<{ extension: InjectedExtension }> = ({
-  extension,
-}) => {
-  const accounts = useSyncExternalStore(
-    extension.subscribe,
-    extension.getAccounts,
-  )
+export const Accounts: React.FC<{ extension: InjectedExtension }> = ({ extension }) => {
+  const accounts = useSyncExternalStore(extension.subscribe, extension.getAccounts);
 
   return (
     <SelectGroup>
       <SelectLabel>{extension.name}</SelectLabel>
       {accounts.map((account) => (
-        <SelectItem
-          key={account.address}
-          value={account.address + "-" + extension.name}
-        >
+        <SelectItem key={account.address} value={account.address + "-" + extension.name}>
           {account.name ?? account.address}
         </SelectItem>
       ))}
     </SelectGroup>
-  )
-}
+  );
+};
 
-const SignerCtx: React.FC<PropsWithChildren<{ account: string | null }>> = ({
-  account,
-  children,
-}) => {
-  const extensions = useSelectedExtensions()
-  const [injectedPolkadotAccount, setInjectedPolkadotAccount] =
-    useState<InjectedPolkadotAccount | null>(null)
+const SignerCtx: React.FC<PropsWithChildren<{ account: string | null }>> = ({ account, children }) => {
+  const extensions = useSelectedExtensions();
+  const [injectedPolkadotAccount, setInjectedPolkadotAccount] = useState<InjectedPolkadotAccount | null>(null);
 
   useEffect(() => {
     if (!account) {
-      setInjectedPolkadotAccount(null)
-      return
+      setInjectedPolkadotAccount(null);
+      return;
     }
 
-    const separator = account.indexOf("-")
-    const address = account.slice(0, separator)
-    const extensionName = account.slice(separator + 1)
+    const separator = account.indexOf("-");
+    const address = account.slice(0, separator);
+    const extensionName = account.slice(separator + 1);
 
     setInjectedPolkadotAccount(
       extensions
         .find((x) => x.name === extensionName)
         ?.getAccounts()
         .find((account) => account.address === address) ?? null,
-    )
-  }, [extensions, account])
+    );
+  }, [extensions, account]);
 
   return (
     injectedPolkadotAccount && (
-      <SelectedAccountCtx.Provider value={injectedPolkadotAccount}>
-        {children}
-      </SelectedAccountCtx.Provider>
+      <SelectedAccountCtx.Provider value={injectedPolkadotAccount}>{children}</SelectedAccountCtx.Provider>
     )
-  )
-}
+  );
+};
 
 export const AccountProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const [selectedAccount, setSelectedAcount] = useState<string | null>(null)
-  const extensions = useSelectedExtensions()
+  const [selectedAccount, setSelectedAcount] = useState<string | null>(null);
+  const extensions = useSelectedExtensions();
 
   return (
     <>
@@ -96,5 +75,5 @@ export const AccountProvider: React.FC<PropsWithChildren> = ({ children }) => {
       </Select>
       <SignerCtx account={selectedAccount}>{children}</SignerCtx>
     </>
-  )
-}
+  );
+};

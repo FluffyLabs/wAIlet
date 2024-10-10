@@ -1,4 +1,4 @@
-import relay from "./relay"
-import ah from "./ah"
+import ah from "./ah";
+import relay from "./relay";
 
-export default [...relay, ...ah]
+export default [...relay, ...ah];

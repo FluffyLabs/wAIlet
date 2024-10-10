@@ -1,11 +1,11 @@
-import { AssetId, ASSET_DECIMALS } from "@/api"
-import { formatCurrency } from "@/lib/utils"
+import { ASSET_DECIMALS, type AssetId } from "@/api";
+import { formatCurrency } from "@/lib/utils";
 
 export const FormattedToken: React.FC<{
-  asset: AssetId
-  value: bigint | null
+  asset: AssetId;
+  value: bigint | null;
 }> = ({ asset, value }) => {
-  const decimals = ASSET_DECIMALS[asset]
+  const decimals = ASSET_DECIMALS[asset];
 
   return (
     <>
@@ -17,5 +17,5 @@ export const FormattedToken: React.FC<{
           " " +
           asset}
     </>
-  )
-}
+  );
+};
