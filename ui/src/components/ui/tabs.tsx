@@ -1,11 +1,8 @@
-import * as React from "react"
+import type * as React from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-export type DivProps = React.DetailedHTMLProps<
-  React.HTMLAttributes<HTMLDivElement>,
-  HTMLDivElement
->
+export type DivProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
 /*
           <TabsList>
             <TabsTrigger>polkadot-js</TabsTrigger>
@@ -23,14 +20,9 @@ export const TabsList: React.FC<DivProps> = ({ className, children }) => (
   >
     {children}
   </div>
-)
+);
 
-export const TabsTrigger: React.FC<DivProps & { active?: boolean }> = ({
-  className,
-  children,
-  active,
-  ...props
-}) => (
+export const TabsTrigger: React.FC<DivProps & { active?: boolean }> = ({ className, children, active, ...props }) => (
   <div
     {...props}
     className={cn(
@@ -41,4 +33,4 @@ export const TabsTrigger: React.FC<DivProps & { active?: boolean }> = ({
   >
     {children}
   </div>
-)
+);

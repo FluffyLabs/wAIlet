@@ -1,50 +1,41 @@
+import { wndAhClient } from "@/api/clients";
 import {
   XcmV3Junction,
   XcmV3JunctionNetworkId,
   XcmV3Junctions,
   XcmV3MultiassetFungibility,
   XcmVersionedAssets,
-  XcmVersionedLocation,
+  type XcmVersionedLocation,
   wndAssethub as descriptors,
-} from "@polkadot-api/descriptors"
-import { wndAhClient } from "@/api/clients"
-import { AssetInChain } from "../types"
+} from "@polkadot-api/descriptors";
 import {
   fromAssetHubToForeign,
   fromAssetHubToRelay,
   getNativeAsset,
   watchAccoutFreeBalance,
   watchForeingAssetAccoutFreeBalance,
-} from "../common"
+} from "../common";
+import type { AssetInChain } from "../types";
 
-const api = wndAhClient.getTypedApi(descriptors)
+const api = wndAhClient.getTypedApi(descriptors);
 
 const wnd: AssetInChain = {
   chain: "wndAh",
   symbol: "WND",
   watchFreeBalance: watchAccoutFreeBalance(api),
   teleport: {
-    wnd: (...args) =>
-      api.tx.PolkadotXcm.transfer_assets(fromAssetHubToRelay(...args)),
+    wnd: (...args) => api.tx.PolkadotXcm.transfer_assets(fromAssetHubToRelay(...args)),
     rocAh: (from, amount, to) =>
       api.tx.PolkadotXcm.transfer_assets(
-        fromAssetHubToForeign(
-          XcmV3JunctionNetworkId.Rococo(),
-          1000,
-          getNativeAsset(1, amount),
-          from,
-          to,
-        ),
+        fromAssetHubToForeign(XcmV3JunctionNetworkId.Rococo(), 1000, getNativeAsset(1, amount), from, to),
       ),
   },
-}
+};
 
 const rocInWndAh: Parameters<typeof XcmVersionedLocation.V4>[0] = {
   parents: 2,
-  interior: XcmV3Junctions.X1(
-    XcmV3Junction.GlobalConsensus(XcmV3JunctionNetworkId.Rococo()),
-  ),
-}
+  interior: XcmV3Junctions.X1(XcmV3Junction.GlobalConsensus(XcmV3JunctionNetworkId.Rococo())),
+};
 
 const roc: AssetInChain = {
   chain: "wndAh",
@@ -67,6 +58,6 @@ const roc: AssetInChain = {
         ),
       ),
   },
-}
+};
 
-export default [wnd, roc]
+export default [wnd, roc];

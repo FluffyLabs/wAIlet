@@ -1,33 +1,31 @@
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
-export const decimalSeparatorDisplay = "."
-export const decimalSeparatorsInput = [".", ","]
-export const decimalSeparatorRegex = ",|."
+export const decimalSeparatorDisplay = ".";
+export const decimalSeparatorsInput = [".", ","];
+export const decimalSeparatorRegex = ",|.";
 
 export const getDecimalSeparator = (inputString: string) => {
-  const parts = new RegExp(
-    `^(-)?(\\d*)(${decimalSeparatorRegex})?((\\d+))?$`,
-  ).exec(inputString)
+  const parts = new RegExp(`^(-)?(\\d*)(${decimalSeparatorRegex})?((\\d+))?$`).exec(inputString);
 
-  return parts ? parts[3] : null
-}
+  return parts ? parts[3] : null;
+};
 
 export type FormatCurrencyOptions = {
-  nDecimals: number
-  padToDecimals: boolean
-  decimalSeparator: string
-}
+  nDecimals: number;
+  padToDecimals: boolean;
+  decimalSeparator: string;
+};
 
 const defaultOptions: FormatCurrencyOptions = {
-  nDecimals: Infinity,
+  nDecimals: Number.POSITIVE_INFINITY,
   padToDecimals: true,
   decimalSeparator: decimalSeparatorDisplay,
-}
+};
 
 export const formatCurrency = (
   value: bigint | null,
@@ -37,55 +35,48 @@ export const formatCurrency = (
   const { nDecimals, padToDecimals, decimalSeparator } = {
     ...defaultOptions,
     ...options,
-  }
-  if (value === null) return ""
-  const precisionMultiplier = 10n ** BigInt(precision)
+  };
+  if (value === null) return "";
+  const precisionMultiplier = 10n ** BigInt(precision);
   if (nDecimals < precision) {
-    value = value / 10n ** BigInt(precision - (nDecimals + 1))
-    const rounded = Math.abs(Number(value % 10n)) > 4
-    const rounding = rounded ? (value < 0 ? -1n : 1n) : 0n
-    value = value / 10n + rounding
-    value *= 10n ** BigInt(precision - nDecimals)
+    value = value / 10n ** BigInt(precision - (nDecimals + 1));
+    const rounded = Math.abs(Number(value % 10n)) > 4;
+    const rounding = rounded ? (value < 0 ? -1n : 1n) : 0n;
+    value = value / 10n + rounding;
+    value *= 10n ** BigInt(precision - nDecimals);
   }
-  const isNegative = value < 0n
-  const absValue = isNegative ? value * -1n : value
-  let intPartStr = (absValue / precisionMultiplier).toString()
-  if (isNegative) intPartStr = "-" + intPartStr
-  const decimalPart = absValue % precisionMultiplier
+  const isNegative = value < 0n;
+  const absValue = isNegative ? value * -1n : value;
+  let intPartStr = (absValue / precisionMultiplier).toString();
+  if (isNegative) intPartStr = "-" + intPartStr;
+  const decimalPart = absValue % precisionMultiplier;
 
   if (
     nDecimals === 0 ||
-    (nDecimals === Infinity && decimalPart === 0n) ||
+    (nDecimals === Number.POSITIVE_INFINITY && decimalPart === 0n) ||
     (padToDecimals === false && decimalPart === 0n)
   )
-    return intPartStr
+    return intPartStr;
 
-  let newDecimalPart = decimalPart
-    .toString()
-    .padStart(precision, "0")
-    .replace(/00*$/, "")
+  let newDecimalPart = decimalPart.toString().padStart(precision, "0").replace(/00*$/, "");
 
-  if (nDecimals !== Infinity && padToDecimals === true) {
-    newDecimalPart = newDecimalPart.padEnd(nDecimals, "0")
+  if (nDecimals !== Number.POSITIVE_INFINITY && padToDecimals === true) {
+    newDecimalPart = newDecimalPart.padEnd(nDecimals, "0");
   }
 
-  return intPartStr + decimalSeparator + newDecimalPart
-}
+  return intPartStr + decimalSeparator + newDecimalPart;
+};
 
 type BigNumber = {
-  value: bigint
-  precision: bigint
-}
+  value: bigint;
+  precision: bigint;
+};
 
-export const divideBigInt = (
-  numerator: BigNumber,
-  denominator: BigNumber,
-  targetPrecision?: bigint,
-) => {
-  const precision = targetPrecision ?? numerator.precision
+export const divideBigInt = (numerator: BigNumber, denominator: BigNumber, targetPrecision?: bigint) => {
+  const precision = targetPrecision ?? numerator.precision;
   return (
     (10n ** precision * (numerator.value * 10n ** denominator.precision)) /
     denominator.value /
     10n ** numerator.precision
-  )
-}
+  );
+};
