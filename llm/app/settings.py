@@ -13,6 +13,7 @@ def init_settings():
     Settings.chunk_size = int(os.getenv("CHUNK_SIZE", "1024"))
     Settings.chunk_overlap = int(os.getenv("CHUNK_OVERLAP", "20"))
 
+
 def init_openai():
     from llama_index.core.constants import DEFAULT_TEMPERATURE
     from llama_index.embeddings.openai import OpenAIEmbedding

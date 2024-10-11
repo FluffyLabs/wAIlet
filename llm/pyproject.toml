@@ -6,9 +6,6 @@ description = ""
 authors = [ "dzkb <1517445+dzkb@users.noreply.github.com>" ]
 readme = "README.md"
 
-[tool.poetry.scripts]
-generate = "app.engine.generate:generate_datasource"
-
 [tool.poetry.dependencies]
 python = ">=3.11,<3.13"
 fastapi = "^0.109.1"
@@ -28,6 +25,7 @@ version = "^0.23.2"
 [tool.poetry.group.dev]
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.8.0"
+ruff = "^0.6.9"
 
 [tool.mypy]
 python_version = "3.11"

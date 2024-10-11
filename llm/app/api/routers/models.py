@@ -4,6 +4,8 @@ from typing import Any, List, Optional
 from llama_index.core.llms import ChatMessage, MessageRole
 from pydantic import BaseModel, Field, validator
 
+from app.polkadot.models import Transaction
+
 logger = logging.getLogger("uvicorn")
 
 
@@ -56,18 +58,23 @@ class ChatData(BaseModel):
         ]
         return chat_messages
 
+    def get_all_messages(self) -> List[ChatMessage]:
+        """
+        Get all messages
+        """
+        chat_messages = [
+            ChatMessage(role=message.role, content=message.content)
+            for message in self.messages
+        ]
+        return chat_messages
+
     def is_last_message_from_user(self) -> bool:
         return self.messages[-1].role == MessageRole.USER
 
 
-class Extrinsic(BaseModel):
-    txType: str
-    data: Any
-
-
 class Result(BaseModel):
     message: Message
-    action: Optional[Extrinsic] = None
+    transaction: Optional[Transaction] = None
 
 
 class ChatConfig(BaseModel):

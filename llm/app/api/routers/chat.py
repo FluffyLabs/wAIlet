@@ -1,12 +1,12 @@
 import logging
 
+from app.api.routers.streaming import vercel_streaming
 from fastapi import APIRouter
-from llama_index.core.chat_engine.types import NodeWithScore
+from fastapi.responses import StreamingResponse
 from llama_index.core.llms import MessageRole
 
 from app.api.routers.models import (
     ChatData,
-    Extrinsic,
     Message,
     Result,
 )
@@ -17,17 +17,25 @@ chat_router = r = APIRouter()
 logger = logging.getLogger("uvicorn")
 
 
+# TODO: make it a real streaming endpoint, not a fake one
+@r.post("")
+async def chat(
+    data: ChatData,
+):
+    chat_engine = get_chat_engine()
+
+    response = await chat_engine.achat(data.get_all_messages())
+    return StreamingResponse(content=vercel_streaming(response.raw))
+
+
 @r.post("/request")
 async def chat_request(
     data: ChatData,
 ) -> Result:
-    last_message_content = data.get_last_message_content()
-    messages = data.get_history_messages()
-
     chat_engine = get_chat_engine()
 
-    response = await chat_engine.achat(last_message_content, messages)
+    response = await chat_engine.achat(data.get_all_messages())
     return Result(
-        message=Message(role=MessageRole.ASSISTANT, content=response.response),
-        action=Extrinsic(txType="api.tx.xcmPallet.teleportAssets", data={}),
+        message=Message(role=MessageRole.ASSISTANT, content=response.raw.message),
+        transaction=response.raw.transaction,
     )
