@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 TEXT_PREFIX = "0:"
-DATA_PREFIX = "8:"
+DATA_PREFIX = "2:"
 
 
 def _convert_text(token: str):
@@ -14,7 +14,7 @@ def _convert_text(token: str):
 
 
 def _convert_data(data: BaseModel):
-    data_str = json.dumps(data.model_dump_json())
+    data_str = data.model_dump_json()
     return f"{DATA_PREFIX}[{data_str}]\n"
 
 
