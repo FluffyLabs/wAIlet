@@ -1,6 +1,9 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { type UseChatOptions, useChat } from "ai/react";
-import { useId } from "react";
+import { useEffect, useId, useRef } from "react";
 
 const useChatWrapper = (options?: UseChatOptions) => {
   const id = useId();
@@ -9,26 +12,51 @@ const useChatWrapper = (options?: UseChatOptions) => {
 };
 
 export const Chat: React.FC = () => {
-  const { messages, input, handleInputChange, handleSubmit } = useChatWrapper({
-    api: import.meta.env.CHAT_ENDPOINT,
+  const chatRef = useRef<HTMLDivElement>(null);
+  const { messages, input, handleInputChange, handleSubmit, isLoading, data } = useChatWrapper({
+    api: import.meta.env.VITE_CHAT_ENDPOINT,
     keepLastMessageOnError: true,
   });
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: making sure chat scrolls to bottom on any message change
+  useEffect(() => {
+    if (!chatRef.current) return;
+    chatRef.current.scrollTo(0, chatRef.current.scrollHeight);
+  }, [messages]);
+
+  useEffect(() => {
+    console.log("data changed", data);
+  }, [data]);
+
   return (
-    <Card>
-      <CardContent>
+    <div className="flex flex-col h-full gap-5">
+      <div className="rounded-lg border p-5 h-96 flex-grow flex flex-col gap-2 overflow-y-auto" ref={chatRef}>
         {messages.map((message) => (
-          <div key={message.id}>
-            {message.role === "user" ? "User: " : "AI: "}
+          <div
+            className={cn(
+              "w-4/5 p-2 rounded-md text-white",
+              message.role === "user" ? "bg-black" : "bg-gray-500 ml-auto",
+            )}
+            key={message.id}
+          >
             {message.content}
           </div>
         ))}
-
-        <form onSubmit={handleSubmit}>
-          <input name="prompt" value={input} onChange={handleInputChange} />
-          <button type="submit">Submit</button>
-        </form>
-      </CardContent>
-    </Card>
+        {isLoading && <Spinner className="ml-auto" />}
+      </div>
+      <form className="flex-grow-0 flex flex-col gap-2" onSubmit={handleSubmit}>
+        <Textarea
+          value={input}
+          onChange={handleInputChange}
+          className="resize-none"
+          placeholder="What would you like to do?"
+          autoSize
+          submitOnEnter
+        />
+        <Button className="w-full" type="submit">
+          Submit
+        </Button>
+      </form>
+    </div>
   );
 };
