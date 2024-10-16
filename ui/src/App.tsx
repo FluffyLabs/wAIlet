@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Chat } from "./Chat/Chat";
 import { Teleport } from "./Teleport";
 import { AccountProvider } from "./context/AccountProvider";
 import { ExtensionProvider } from "./context/ExtensionProvider";
@@ -14,9 +15,7 @@ export default function LoginForm() {
           <ExtensionProvider>
             <AccountProvider>
               <div className="grid grid-cols-2 gap-8">
-                <Card>
-                  <CardContent>Chat</CardContent>
-                </Card>
+                <Chat />
                 <Teleport />
               </div>
             </AccountProvider>

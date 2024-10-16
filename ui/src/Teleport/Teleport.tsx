@@ -99,7 +99,7 @@ export const Teleport: React.FC = () => {
           values={to.options.map(chainToSelectorValue)}
         />
       </div>
-      <Card className="w-full max-w-sm">
+      <Card className="w-full">
         <CardHeader className="m-0 p-2 text-center">Transferable Balances</CardHeader>
         <ul className="grid gap-3 m-2">
           <li className="flex items-center justify-between">
@@ -116,7 +116,7 @@ export const Teleport: React.FC = () => {
           </li>
         </ul>
       </Card>
-      <div className="grid w-full max-w-sm items-center gap-1.5">
+      <div className="grid w-full items-center gap-1.5">
         <Label htmlFor="amount">Amount</Label>
         <Input
           value={amount?.toString() ?? ""}

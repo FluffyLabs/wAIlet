@@ -1,18 +1,16 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.9.3/schema.json",
   "vcs": {
-    "enabled": true,
+    "enabled": false,
     "clientKind": "git",
     "useIgnoreFile": true
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": []
+    "ignore": ["ui/.papi"]
   },
   "formatter": {
     "enabled": true,
-    "formatWithErrors": false,
-    "ignore": [],
     "attributePosition": "auto",
     "indentStyle": "space",
     "indentWidth": 2,
@@ -25,12 +23,13 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "correctness": {
+        "noUnusedImports": "error"
+      }
     }
   },
   "javascript": {
-    "formatter": {
-      "quoteStyle": "double"
-    }
+    "formatter": {}
   }
 }
