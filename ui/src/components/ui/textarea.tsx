@@ -29,7 +29,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     }, [props.value]);
 
     const handleSubmitOnEnter = useCallback<KeyboardEventHandler<HTMLTextAreaElement>>(
-      function (e, ...args) {
+      (e, ...args) => {
         if (e.key === ENTER_KEY_CODE && !e.shiftKey) {
           if (!e.repeat) {
             e.currentTarget.form?.requestSubmit();
