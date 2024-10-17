@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Chat } from "./Chat/Chat";
-import { Teleport } from "./Teleport";
 import { AccountProvider } from "./context/AccountProvider";
+import { ChatProvider } from "./context/ChatProvider";
 import { ExtensionProvider } from "./context/ExtensionProvider";
+import { TransactionProvider } from "./context/TransactionProvider";
 
 export default function LoginForm() {
   return (
@@ -14,10 +15,12 @@ export default function LoginForm() {
         <CardContent className="grid gap-4">
           <ExtensionProvider>
             <AccountProvider>
-              <div className="grid grid-cols-2 gap-8">
-                <Chat />
-                <Teleport />
-              </div>
+              <ChatProvider>
+                <div className="grid grid-flow-col auto-cols-fr gap-8">
+                  <Chat />
+                  <TransactionProvider />
+                </div>
+              </ChatProvider>
             </AccountProvider>
           </ExtensionProvider>
         </CardContent>
