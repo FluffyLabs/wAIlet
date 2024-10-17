@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type React from "react";
-import { type Reducer, useReducer, useState } from "react";
+import { type Reducer, useReducer } from "react";
 import { FeesAndSubmit } from "./FeesAndSubmit";
 import { FormattedToken } from "./FormattedToken";
 import { useBalance } from "./use-balance";
@@ -34,20 +34,21 @@ const chainToSelectorValue = (chain: ChainId) => ({
   display: CHAIN_NAMES[chain],
 });
 
-interface TeleporterState {
+export interface TeleporterState {
   from: ChainId;
   to: { options: ChainId[]; selected: ChainId };
   asset: { options: AssetId[]; selected: AssetId };
+  amount: number | null;
 }
-const teleportReducer: Reducer<
+export const teleportReducer: Reducer<
   TeleporterState,
-  { type: "from" | "to"; value: ChainId } | { type: "asset"; value: AssetId }
+  { type: "from" | "to"; value: ChainId } | { type: "asset"; value: AssetId } | { type: "amount"; value: number | null }
 > = (state, event) => {
   if (event.type === "to") return { ...state, to: { ...state.to, selected: event.value } };
 
   const from = event.type === "from" ? event.value : state.from;
 
-  const asset = state.asset;
+  const asset = state.asset || {};
   if (event.type === "asset") asset.selected = event.value;
   else {
     asset.options = [...chains.get(from)!.keys()].filter((x) => Object.keys(chains.get(from)!.get(x)!.teleport).length);
@@ -57,17 +58,18 @@ const teleportReducer: Reducer<
   const toOptions = Object.keys(chains.get(from)!.get(asset.selected)!.teleport) as ChainId[];
   const to = { options: toOptions, selected: toOptions[0] };
 
-  return { from, asset, to };
+  const amount = event.type === "amount" ? event.value : state.amount || 0.0;
+
+  return { from, asset, to, amount };
 };
 
-const initialState = teleportReducer({ asset: {} } as TeleporterState, {
+export const initialState = teleportReducer({} as TeleporterState, {
   type: "from",
   value: "dot",
 });
 
-export const Teleport: React.FC = () => {
-  const [{ from, to, asset }, dispatch] = useReducer(teleportReducer, initialState);
-  const [amount, setAmount] = useState<number | null>(null);
+export const Teleport: React.FC<{ initialState?: TeleporterState }> = ({ initialState: initialStateProp }) => {
+  const [{ from, to, asset, amount }, dispatch] = useReducer(teleportReducer, initialStateProp || initialState);
   const fromBalance = useBalance(from, asset.selected);
 
   return (
@@ -122,7 +124,7 @@ export const Teleport: React.FC = () => {
           value={amount?.toString() ?? ""}
           onChange={({ target: { value } }) => {
             const amount = Number(value);
-            setAmount(Number.isNaN(amount) ? null : amount);
+            dispatch({ type: "amount", value: Number.isNaN(amount) ? null : amount });
           }}
           type="number"
           id="amount"

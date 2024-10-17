@@ -1,32 +1,19 @@
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { useChat } from "@/context/chatCtx";
 import { cn } from "@/lib/utils";
-import { type UseChatOptions, useChat } from "ai/react";
-import { useEffect, useId, useRef } from "react";
-
-const useChatWrapper = (options?: UseChatOptions) => {
-  const id = useId();
-  const chat = useChat({ ...(options ?? {}), id });
-  return chat;
-};
+import { useEffect, useRef } from "react";
 
 export const Chat: React.FC = () => {
   const chatRef = useRef<HTMLDivElement>(null);
-  const { messages, input, handleInputChange, handleSubmit, isLoading, data } = useChatWrapper({
-    api: import.meta.env.VITE_CHAT_ENDPOINT,
-    keepLastMessageOnError: true,
-  });
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat();
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: making sure chat scrolls to bottom on any message change
   useEffect(() => {
     if (!chatRef.current) return;
     chatRef.current.scrollTo(0, chatRef.current.scrollHeight);
   }, [messages]);
-
-  useEffect(() => {
-    console.log("data changed", data);
-  }, [data]);
 
   return (
     <div className="flex flex-col h-full gap-5">
