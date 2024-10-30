@@ -9,10 +9,10 @@ export const useBalance = (chain: ChainId, asset: AssetId) => {
   useEffect(() => {
     setBalance(null);
 
-    const subscription = chains.get(chain)!.get(asset)!.watchFreeBalance(account.address).subscribe(setBalance);
+    const subscription = chains.get(chain)?.get(asset)?.watchFreeBalance(account.address).subscribe(setBalance);
 
     return () => {
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, [account, chain, asset]);
 

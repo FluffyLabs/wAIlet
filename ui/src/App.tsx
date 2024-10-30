@@ -1,9 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Chat } from "./Chat/Chat";
+import { TransactionContainer } from "./TransactionContainer/TransactionContainer";
 import { AccountProvider } from "./context/AccountProvider";
 import { ChatProvider } from "./context/ChatProvider";
 import { ExtensionProvider } from "./context/ExtensionProvider";
-import { TransactionProvider } from "./context/TransactionProvider";
+import { TransactionProvider } from "./context/transactionCtx";
 
 export default function LoginForm() {
   return (
@@ -15,12 +16,14 @@ export default function LoginForm() {
         <CardContent className="grid gap-4">
           <ExtensionProvider>
             <AccountProvider>
-              <ChatProvider>
-                <div className="grid grid-flow-col auto-cols-fr gap-8">
-                  <Chat />
-                  <TransactionProvider />
-                </div>
-              </ChatProvider>
+              <TransactionProvider>
+                <ChatProvider>
+                  <div className="grid grid-flow-col auto-cols-fr gap-8">
+                    <Chat />
+                    <TransactionContainer />
+                  </div>
+                </ChatProvider>
+              </TransactionProvider>
             </AccountProvider>
           </ExtensionProvider>
         </CardContent>

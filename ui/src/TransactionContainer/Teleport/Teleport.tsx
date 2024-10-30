@@ -3,14 +3,15 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TransactionActionType, TransactionType, useTransaction } from "@/context/transactionCtx";
 import type React from "react";
-import { type Reducer, useReducer } from "react";
+import { useEffect, useState } from "react";
 import { FeesAndSubmit } from "./FeesAndSubmit";
 import { FormattedToken } from "./FormattedToken";
 import { useBalance } from "./use-balance";
 
 const Selector: React.FC<{
-  value: string;
+  value: string | undefined;
   onChange: (value: string) => void;
   values: Array<{ key: string; display: string }>;
 }> = ({ onChange, values, value }) => (
@@ -34,43 +35,37 @@ const chainToSelectorValue = (chain: ChainId) => ({
   display: CHAIN_NAMES[chain],
 });
 
-export interface TeleporterState {
-  from: ChainId;
-  to: { options: ChainId[]; selected: ChainId };
-  asset: { options: AssetId[]; selected: AssetId };
-  amount: number | null;
-}
-export const teleportReducer: Reducer<
-  TeleporterState,
-  { type: "from" | "to"; value: ChainId } | { type: "asset"; value: AssetId } | { type: "amount"; value: number | null }
-> = (state, event) => {
-  if (event.type === "to") return { ...state, to: { ...state.to, selected: event.value } };
+export const Teleport: React.FC = () => {
+  const transaction = useTransaction();
 
-  const from = event.type === "from" ? event.value : state.from;
-
-  const asset = state.asset || {};
-  if (event.type === "asset") asset.selected = event.value;
-  else {
-    asset.options = [...chains.get(from)!.keys()].filter((x) => Object.keys(chains.get(from)!.get(x)!.teleport).length);
-    asset.selected = asset.options[0];
+  if (transaction.state.type !== TransactionType.Teleport) {
+    throw new Error("Transaction data mismatched with transaction component.");
   }
 
-  const toOptions = Object.keys(chains.get(from)!.get(asset.selected)!.teleport) as ChainId[];
-  const to = { options: toOptions, selected: toOptions[0] };
+  const {
+    state: {
+      formData: { from, to, asset, amount },
+    },
+    dispatch,
+  } = transaction;
 
-  const amount = event.type === "amount" ? event.value : state.amount || 0.0;
+  const fromBalance = useBalance(from, asset);
+  const [toOptions, setToOptions] = useState<ChainId[]>([]);
+  const [assetOptions, setAssetOptions] = useState<AssetId[]>([]);
 
-  return { from, asset, to, amount };
-};
+  useEffect(() => {
+    const newToOptions = Object.keys(chains.get(from)?.get(asset)?.teleport || {}) as ChainId[];
+    setToOptions(newToOptions);
+    dispatch({ type: TransactionActionType.UPDATE_FORM_DATA, payload: { to: newToOptions[0] } });
+  }, [from, asset, dispatch]);
 
-export const initialState = teleportReducer({} as TeleporterState, {
-  type: "from",
-  value: "dot",
-});
-
-export const Teleport: React.FC<{ initialState?: TeleporterState }> = ({ initialState: initialStateProp }) => {
-  const [{ from, to, asset, amount }, dispatch] = useReducer(teleportReducer, initialStateProp || initialState);
-  const fromBalance = useBalance(from, asset.selected);
+  useEffect(() => {
+    const newAssetOptions = [...(chains.get(from)?.keys() || [])].filter(
+      (x) => Object.keys(chains.get(from)?.get(x)?.teleport || {}).length,
+    );
+    setAssetOptions(newAssetOptions);
+    dispatch({ type: TransactionActionType.UPDATE_FORM_DATA, payload: { asset: newAssetOptions[0] } });
+  }, [from, dispatch]);
 
   return (
     <div className="grid gap-4">
@@ -78,16 +73,20 @@ export const Teleport: React.FC<{ initialState?: TeleporterState }> = ({ initial
         <Label htmlFor="name">From Chain:</Label>
         <Selector
           value={from}
-          onChange={(value) => dispatch({ type: "from", value: value as ChainId })}
+          onChange={(value) =>
+            dispatch({ type: TransactionActionType.UPDATE_FORM_DATA, payload: { from: value as ChainId } })
+          }
           values={fromChains.map(chainToSelectorValue)}
         />
       </div>
       <div className="flex flex-col space-y-1.5">
         <Label htmlFor="name">Asset:</Label>
         <Selector
-          value={asset.selected}
-          onChange={(value) => dispatch({ type: "asset", value: value as AssetId })}
-          values={asset.options.map((key) => ({
+          value={asset}
+          onChange={(value) =>
+            dispatch({ type: TransactionActionType.UPDATE_FORM_DATA, payload: { asset: value as AssetId } })
+          }
+          values={assetOptions.map((key) => ({
             key,
             display: key,
           }))}
@@ -96,9 +95,11 @@ export const Teleport: React.FC<{ initialState?: TeleporterState }> = ({ initial
       <div className="flex flex-col space-y-1.5">
         <Label htmlFor="name">To Chain:</Label>
         <Selector
-          value={to.selected}
-          onChange={(value) => dispatch({ type: "to", value: value as ChainId })}
-          values={to.options.map(chainToSelectorValue)}
+          value={to}
+          onChange={(value) =>
+            dispatch({ type: TransactionActionType.UPDATE_FORM_DATA, payload: { to: value as ChainId } })
+          }
+          values={toOptions.map(chainToSelectorValue)}
         />
       </div>
       <Card className="w-full">
@@ -107,13 +108,13 @@ export const Teleport: React.FC<{ initialState?: TeleporterState }> = ({ initial
           <li className="flex items-center justify-between">
             <span className="text-muted-foreground">{CHAIN_NAMES[from]}</span>
             <span>
-              <FormattedToken asset={asset.selected} value={fromBalance} />
+              <FormattedToken asset={asset} value={fromBalance} />
             </span>
           </li>
           <li className="flex items-center justify-between">
-            <span className="text-muted-foreground">{CHAIN_NAMES[to.selected]}</span>
+            <span className="text-muted-foreground">{CHAIN_NAMES[to]}</span>
             <span>
-              <FormattedToken asset={asset.selected} value={useBalance(to.selected, asset.selected)} />
+              <FormattedToken asset={asset} value={useBalance(to, asset)} />
             </span>
           </li>
         </ul>
@@ -124,14 +125,17 @@ export const Teleport: React.FC<{ initialState?: TeleporterState }> = ({ initial
           value={amount?.toString() ?? ""}
           onChange={({ target: { value } }) => {
             const amount = Number(value);
-            dispatch({ type: "amount", value: Number.isNaN(amount) ? null : amount });
+            dispatch({
+              type: TransactionActionType.UPDATE_FORM_DATA,
+              payload: { amount: Number.isNaN(amount) ? undefined : amount },
+            });
           }}
           type="number"
           id="amount"
           placeholder="Amount to teleport"
         />
       </div>
-      <FeesAndSubmit from={from} to={to.selected} asset={asset.selected} amount={amount} />
+      <FeesAndSubmit from={from} to={to} asset={asset} amount={amount} />
     </div>
   );
 };
